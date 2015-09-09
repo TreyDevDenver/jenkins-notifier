@@ -1,0 +1,76 @@
+<html>
+<head>
+	<script type="text/javascript" src="javascripts/socket.io.min.js"></script>
+</head>
+
+<style type="text/css">
+#latest-build-num {
+	background-color: rgb(218, 216, 216);
+	width:500px;
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+}
+#latest-build-status {
+	height:300px;
+	width:500px;
+	margin-right: auto;
+	margin-left: auto;
+	overflow: scroll;
+	outline: 1px black solid;
+}
+#latest-build-status span {
+	background-color: black;
+	color: white;
+	padding: 5px;
+	outline: 1px black dashed;
+}
+</style>
+
+<body>
+
+<div id="latest-build-num"></div>
+
+<div id="latest-build-status"></div>
+
+<script type="text/javascript">
+
+var socket = io.connect('http://127.0.0.1:6456');
+//var socket = io.connect('http://10.10.100.171:6456');
+
+socket.on('connect', function(){
+
+	// Handle announcements
+	socket.on('announcement', function(msg){
+		if (typeof msg.type !== 'undefined'
+			&& msg.type === 'build-number') {
+
+			if (typeof msg.data !== 'undefined') {
+				document.getElementById('latest-build-num').innerHTML = '';
+				document.getElementById('latest-build-num').innerHTML = msg.data ;
+			}
+		}
+	});
+
+	// Handle Jenkins API results
+	socket.on('jenkins-res', function(msg){
+		var time = new Date();
+		if (msg) {
+			var statusContent = document.getElementById('latest-build-status').innerHTML;
+			var addStatusLine = '<hr><br><span>' + time.toTimeString() + '</span> &rArr; ' + msg + '<br>' + statusContent;
+
+			document.getElementById('latest-build-status').innerHTML = addStatusLine;
+		}
+	});
+
+	socket.on('message', function(msg){
+console.log('message', msg);
+	});
+
+
+});
+
+</script>
+
+</body>
+</html>

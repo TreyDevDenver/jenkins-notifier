@@ -1,0 +1,79 @@
+<html>
+	<head>
+		<script type="text/javascript" src="javascripts/socket.io.min.js"></script>
+		<script type="text/javascript" src="javascripts/jquery-2.1.0.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+	</head>
+<body>
+
+<div id="status-ticker">
+	<div id="latest-build-ticker"></div>
+</div>
+<div id="announcement"></div>
+<!-- <div id="container">
+
+</div> -->
+
+<script type="text/javascript">
+(function($) {
+
+	// var socket = io.connect('http://127.0.0.1:6456');
+	var socket = io.connect('http://10.10.100.73:6456');
+
+	// Socket interactions...
+	socket.on('connect', function(){
+
+		// Handle announcements
+		socket.on('announcement', function(msg){
+			var announceStr = '';
+			if (typeof msg.name !== 'undefined') announceStr += msg.name + ' ';
+			if (typeof msg.buildNumber !== 'undefined') announceStr += '#' + msg.buildNumber + ' ';
+			if (typeof msg.timeStamp !== 'undefined') announceStr += ' @' + _formatTime(msg.timeStamp) + '';
+			if (typeof msg.culprits !== 'undefined' && typeof msg.result !== 'undefined') announceStr += ' &srarr; <span class="' + msg.result + '">' + msg.culprits.join(',') + '</span>';
+
+			$('#announcement').empty().append(announceStr);
+		});
+
+		// Handle Jenkins API results
+		socket.on('jenkins-res', function(msg){
+			if (typeof msg.result !== 'undefined'
+				&& typeof msg.buildDisplay !== 'undefined'
+				&& typeof msg.timestamp !== 'undefined') {
+				var time = new Date();
+				var formatTime = _formatTime(msg.timestamp, true);
+
+				var statusTick = '<dl class="build-tick"><dt class="feed-title">' + msg.buildDisplay + '</dt><dd>' + formatTime + ' &rArr; <span class="' + msg.result +'">' + msg.result + '</span></dd></dl>';
+
+				$('#latest-build-ticker').prepend(statusTick);
+			}
+		});
+
+		socket.on('message', function(msg){
+	console.log('message', msg);
+		});
+
+	});
+
+	var _formatTime = function(timestamp, htmlTags) {
+		var timestamp = timestamp || new Date();
+		var time = new Date(timestamp);
+		var htmlTags = htmlTags || false;
+		var month = time.getMonth() + 1,
+		day = time.getDate(),
+		hour = time.getHours(),
+		minute = time.getMinutes();
+		var timePeriod = (hour < 12 ? 'am' : 'pm');
+
+		if (hour > 12) hour = hour - 12;
+		if (minute < 10) minute = '0' + minute;
+		if (month < 10) month = '0' + month;
+		if (day < 10) day = '0' + day;
+
+		if (htmlTags) return '<span class="feed-stamp-format">(' + month + '-' + day + ') </span><span class="feed-date-format">' + hour + ':' + minute + ' ' + timePeriod +'</span>';
+		return hour + ':' + minute + timePeriod;
+	}
+})(jQuery);
+</script>
+
+</body>
+</html>

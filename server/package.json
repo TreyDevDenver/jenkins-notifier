@@ -1,0 +1,25 @@
+{
+  "name": "devloper-notifier_client_pi",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Trey <treydevdenver@gmail.com>",
+  "description": "Server and web client for the software developer notification and messaging application.",
+  "contributors": [
+    {
+      "name": "Trey",
+      "email": "treydevdenver@gmail.com"
+    }
+  ],
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "3.5.0",
+    "jade": "*",
+    "socket.io": "0.9.x",
+    "request": "^2.34.0",
+    "jenkins": "~0.2.1",
+    "socket.io-client": "~0.9.16",
+    "gpio": "*"
+  }
+}
